@@ -29,7 +29,12 @@ Promise.all([
 		else {
 			mario.jump.cancel();
 		}
-		console.log( keyState );
+	});
+	input.addMapping( 39, keyState => {
+		mario.go.direction = keyState;
+	});
+	input.addMapping( 37, keyState => {
+		mario.go.direction = -keyState;
 	});
 	input.listenTo( window );
 
