@@ -1,6 +1,6 @@
 export function createBackgroundLayer( level, sprites ) {
 	const buffer	= document.createElement( 'canvas' );
-	buffer.width	= 256;
+	buffer.width	= 2048;
 	buffer.height	= 240;
 	const context	= buffer.getContext( '2d' );
 
@@ -8,15 +8,29 @@ export function createBackgroundLayer( level, sprites ) {
 		sprites.drawTile( tile.name, context, x, y );
 	});
 
-	return function drawBackgroundLayer( context ) {
-		context.drawImage( buffer, 0, 0 );
+	return function drawBackgroundLayer( context, camera ) {
+		context.drawImage( buffer, -camera.pos.x, -camera.pos.y );
 	}
 }
 
-export function createSpriteLayer( entities ) {
-	return function drawSpriteLayer( context ) {
+export function createSpriteLayer( entities, width = 64, height	= 64 ) {
+	const spriteBuffer	= document.createElement( 'canvas' );
+	spriteBuffer.width	= width;
+	spriteBuffer.height	= height;
+
+	const spriteBufferCtx = spriteBuffer.getContext( '2d' );
+
+	return function drawSpriteLayer( context, camera ) {
 		entities.forEach(entity => {
-			entity.draw( context );
+			spriteBufferCtx.clearRect( 0, 0, width, height );
+
+			entity.draw( spriteBufferCtx );
+
+			context.drawImage(
+				spriteBuffer,
+				entity.pos.x - camera.pos.x,
+				entity.pos.y - camera.pos.y
+			);
 		})
 	}
 }
@@ -33,18 +47,28 @@ export function createCollisionLayer( level ) {
 		return getByIndexOriginal.call(tileResolver, x, y );
 	}
 
-	return function drawCollision( context ) {
+	return function drawCollision( context, camera ) {
 		context.strokeStyle = 'blue';
 		resolvedTiles.forEach(( {x, y} ) => {
 			context.beginPath();
-			context.rect( x * tileSize, y * tileSize, tileSize, tileSize );
+			context.rect(
+				x * tileSize - camera.pos.x,
+				y * tileSize - camera.pos.y,
+				tileSize,
+				tileSize
+			);
 			context.stroke();
 		});
 
 		context.strokeStyle = 'red';
 		level.entities.forEach(entity => {
 			context.beginPath();
-			context.rect( entity.pos.x, entity.pos.y, entity.size.x, entity.size.y );
+			context.rect(
+				entity.pos.x - camera.pos.x,
+				entity.pos.y - camera.pos.y,
+				entity.size.x,
+				entity.size.y
+			);
 			context.stroke();
 		});
 
