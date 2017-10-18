@@ -16,7 +16,7 @@ Promise.all([
 
 	mario.pos.set( 64, 64 );
 
-	createCollisionLayer( level );
+	level.comp.layers.push( createCollisionLayer(level) );
 
 	level.entities.add( mario );
 
@@ -44,7 +44,7 @@ Promise.all([
 
 	const timer = new Timer();
 
-	timer.update = function update( deltaTime ) {
+	timer.update = deltaTime => {
 		level.update( deltaTime );
 		level.comp.draw( context );
 		mario.vel.y += gravity * deltaTime;
