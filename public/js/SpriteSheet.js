@@ -1,10 +1,15 @@
 export default class SpriteSheet {
 
 	constructor( image, width, height ) {
-		this.image	= image;
-		this.width	= width;
-		this.height	= height;
-		this.tiles	= new Map();
+		this.image		= image;
+		this.width		= width;
+		this.height		= height;
+		this.tiles		= new Map();
+		this.animations	= new Map();
+	}
+
+	defineAnim( name, animation ) {
+		this.animations.set( name, animation );
 	}
 
 	define( name, x, y, width, height ) {
@@ -46,6 +51,11 @@ export default class SpriteSheet {
 
 	drawTile( name, context, x, y ) {
 		this.draw( name, context, x * this.width, y * this.height );
+	}
+
+	drawAnim( name, context, x, y, distance ) {
+		const animation = this.animations.get( name );
+		this.drawTile( animation(distance), context, x, y );
 	}
 
 }
