@@ -1,4 +1,5 @@
-import { Vec2 } from "./math.js";
+import { Vec2 } from './math.js';
+import BoundingBox from './BoundingBox.js';
 
 export const Sides = {
 	TOP		: Symbol( 'top' ),
@@ -29,8 +30,10 @@ export default class Entity {
 		this.pos		= new Vec2( 0, 0 );
 		this.vel		= new Vec2( 0, 0 );
 		this.size		= new Vec2( 0, 0 );
-		this.traits		= [];
+		this.offset		= new Vec2( 0, 0 );
+		this.bounds		= new BoundingBox( this.pos, this.size, this.offset );
 		this.lifetime	= 0;
+		this.traits		= [];
 	}
 
 	addTrait( trait ) {
