@@ -41,6 +41,8 @@ async function main( canvas ) {
 		level.update( deltaTime );
 
 		camera.pos.x = Math.max( 0, mario.pos.x - 100 );
+		// TODO potential fix on the blur effect when the camera moves
+		// camera.pos.x = Math.round( camera.pos.x * 1000 ) / 1000;﻿
 
 		level.comp.draw( context, camera );
 	};
