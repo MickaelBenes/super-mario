@@ -14,13 +14,11 @@ export class Trait {
 		this.name = name;
 	}
 
-	obstruct() {
+	obstruct() {}
 
-	}
+	update() {}
 
-	update() {
-		console.warn( 'Unandled update call in Trait.' );
-	}
+	collides( us, them ) {}
 
 }
 
@@ -53,6 +51,12 @@ export default class Entity {
 		});
 
 		this.lifetime += deltaTime;
+	}
+
+	collides( candidate ) {
+		this.traits.forEach(trait => {
+			trait.collides( this, candidate );
+		});
 	}
 
 }
