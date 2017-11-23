@@ -10,6 +10,7 @@ export function loadKoopa() {
 
 const STATE_WALKING	= Symbol( 'walking' );
 const STATE_HIDING	= Symbol( 'hiding' );
+const STATE_PANIC	= Symbol( 'panic' );
 
 class Behavior extends Trait {
 
@@ -19,6 +20,8 @@ class Behavior extends Trait {
 		this.state			= STATE_WALKING;
 		this.hideTime		= 0;
 		this.hideDuration	= 5;
+		this.walkSpeed		= null;
+		this.panicSpeed		= 300;
 	}
 
 	collides( us, them ) {
@@ -31,7 +34,7 @@ class Behavior extends Trait {
 				this.handleStomp( us, them );
 			}
 			else {
-				them.killable.kill();
+				this.handleNudge( us, them );
 			}
 		}
 	}
@@ -43,22 +46,56 @@ class Behavior extends Trait {
 		else if ( this.state === STATE_HIDING ) {
 			us.killable.kill();
 			us.vel.set( 100, -200 );
+			us.canCollide	= false;
+		}
+		else if ( this.state === STATE_PANIC ) {
+			this.hide( us );
+		}
+	}
+
+	handleNudge( us, them ) {
+		if ( this.state === STATE_WALKING ) {
+			them.killable.kill();
+		}
+		else if ( this.state === STATE_HIDING ) {
+			this.panic( us, them );
+		}
+		else if ( this.state === STATE_PANIC ) {
+			const travelDir	= Math.sign( us.vel.x );
+			const impactDir	= Math.sign( us.pos.x - them.pos.x );
+
+			if ( travelDir !== 0 && travelDir !== impactDir ) {
+				them.killable.kill();
+			}
 		}
 	}
 
 	hide( us ) {
 		us.vel.x				= 0;
 		us.pendulumWalk.enabled	= false;
+
+		if ( this.walkSpeed === null ) {
+			this.walkSpeed = us.pendulumWalk.speed;
+		}
+
 		this.hideTime			= 0;
 		this.state				= STATE_HIDING;
 	}
 
 	unhide( us ) {
 		us.pendulumWalk.enabled	= true;
+		us.pendulumWalk.speed	= this.walkSpeed;
+		// this.walkSpeed			= null;
 		this.state				= STATE_WALKING;
 	}
 
-	update( us, deltaTime, level ) {
+	panic( us,them ) {
+		us.pendulumWalk.enabled	= true;
+		us.pendulumWalk.speed	= this.panicSpeed * Math.sign( them.vel.x );
+		this.state				= STATE_PANIC;
+	}
+
+	update( us, deltaTime ) {
 		if ( this.state === STATE_HIDING ) {
 			this.hideTime += deltaTime;
 
@@ -71,10 +108,22 @@ class Behavior extends Trait {
 }
 
 function createKoopaFactory( sprite ) {
-	const walkAnim = sprite.animations.get( 'walk' );
+	const walkAnim	= sprite.animations.get( 'walk' );
+	const wakeAnim	= sprite.animations.get( 'wake' ) ;
 
 	function routeAnim( koopa ) {
-		if ( koopa.behavior.state === STATE_HIDING ) {
+		const koopaState	= koopa.behavior.state;
+		const koopaHideTime	= koopa.behavior.hideTime;
+
+		if ( koopaState === STATE_HIDING ) {
+			if ( koopaHideTime > 3 ) {
+				return wakeAnim( koopaHideTime );
+			}
+
+			return 'hiding';
+		}
+
+		if ( koopaState === STATE_PANIC ) {
 			return 'hiding';
 		}
 
