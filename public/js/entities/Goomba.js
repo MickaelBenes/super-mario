@@ -20,9 +20,11 @@ class Behavior extends Trait {
 		}
 
 		if ( them.stomper ) {
-			us.killable.kill();
-			them.stomper.bounce();
-			us.pendulumWalk.speed = 0;
+			if ( them.vel.y > us.vel.y ) {
+				us.killable.kill();
+				them.stomper.bounce();
+				us.pendulumWalk.speed = 0;
+			}
 		}
 	}
 
