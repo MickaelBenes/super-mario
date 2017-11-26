@@ -48,9 +48,11 @@ export default class TileCollider {
 		let y;
 		if (entity.vel.y > 0) {
 			y = entity.bounds.bottom;
-		} else if (entity.vel.y < 0) {
+		}
+		else if (entity.vel.y < 0) {
 			y = entity.bounds.top;
-		} else {
+		}
+		else {
 			return;
 		}
 
