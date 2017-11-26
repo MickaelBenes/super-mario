@@ -11,14 +11,24 @@ export const Sides = {
 export class Trait {
 
 	constructor( name ) {
-		this.name = name;
+		this.name	= name;
+		this.tasks	= [];
 	}
+
+	collides( us, them ) {}
 
 	obstruct() {}
 
 	update() {}
 
-	collides( us, them ) {}
+	queue( task ) {
+		this.tasks.push( task );
+	}
+
+	finalize() {
+		this.tasks.forEach( task => task() );
+		this.tasks.length = 0;
+	}
 
 }
 
@@ -59,6 +69,12 @@ export default class Entity {
 	collides( candidate ) {
 		this.traits.forEach(trait => {
 			trait.collides( this, candidate );
+		});
+	}
+
+	finalize() {
+		this.traits.forEach(trait => {
+			trait.finalize();
 		});
 	}
 
