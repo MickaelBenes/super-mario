@@ -1,7 +1,5 @@
 import { Trait, Sides } from '../Entity.js';
 
-const SPEED_BOOST = 0.3;
-
 export default class Solid extends Trait {
 
 	constructor() {
