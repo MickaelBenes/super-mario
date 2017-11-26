@@ -6,9 +6,15 @@ export default class Solid extends Trait {
 
 	constructor() {
 		super( 'solid' );
+
+		this.obstructs = true;
 	}
 
 	obstruct( entity, side, match ) {
+		if ( !this.obstructs ) {
+			return;
+		}
+
 		if ( side === Sides.TOP ) {
 			entity.bounds.top	= match.y2;
 			entity.vel.y		= 0;
