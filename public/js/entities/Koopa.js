@@ -1,6 +1,7 @@
 import Entity, { Trait } from '../Entity.js';
 import Killable from '../traits/Killable.js';
 import PendulumMove from '../traits/PendulumMove.js';
+import Solid from '../traits/Solid.js';
 import { loadSpriteSheet } from '../loaders.js';
 
 export function loadKoopa() {
@@ -142,6 +143,7 @@ function createKoopaFactory( sprite ) {
 		koopa.addTrait( new PendulumMove() );
 		koopa.addTrait( new Killable() );
 		koopa.addTrait( new Behavior() );
+		koopa.addTrait( new Solid() );
 
 		koopa.draw = drawKoopa;
 

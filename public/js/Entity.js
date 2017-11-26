@@ -50,9 +50,9 @@ export default class Entity {
 		this[ trait.name ] = trait;
 	}
 
-	obstruct( side ) {
+	obstruct( side, match ) {
 		this.traits.forEach(trait => {
-			trait.obstruct( this, side );
+			trait.obstruct( this, side, match );
 		});
 	}
 
