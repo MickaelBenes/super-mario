@@ -5,6 +5,7 @@ import Timer from './Timer.js';
 import { setupKeyboard } from './input.js';
 import { createLevelLoader } from './loaders/level.js';
 import { loadEntities } from './entities.js';
+import { createCollisionLayer } from './layers/collision.js';
 
 function createPlayerEnvironment( playerEntity ) {
 	const playerEnv 	= new Entity();
@@ -31,6 +32,8 @@ async function main( canvas ) {
 
 	const playerEnv = createPlayerEnvironment( mario );
 	level.entities.add( playerEnv );
+
+	level.comp.layers.push( createCollisionLayer(level) );
 
 	const input = setupKeyboard( mario );
 	input.listenTo( window );
