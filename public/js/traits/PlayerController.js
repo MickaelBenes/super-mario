@@ -9,10 +9,15 @@ export default class PlayerController extends Trait {
 		this.player		= null;
 		this.checkpoint	= new Vec2( 0, 0 );
 		this.time		= 300;
+		this.score		= 0;
 	}
 
 	setPlayer( entity ) {
 		 this.player = entity;
+
+		 this.player.stomper.onStomp = () => {
+		 	this.score += 100;
+		 }
 	}
 
 	update( entity, deltaTime, level ) {
