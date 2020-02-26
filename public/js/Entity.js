@@ -1,6 +1,7 @@
 import {Vec2} from './math.js';
 import BoundingBox from './BoundingBox.js';
 import AudioBoard from './AudioBoard.js';
+import EventEmitter from './EventEmitter.js';
 
 export const Sides = {
     TOP: Symbol('top'),
@@ -14,6 +15,7 @@ export class Trait {
         this.name = name;
         this.sounds = new Set();
         this.tasks = [];
+        this.events = new EventEmitter();
     }
 
     collides(us, them) {
