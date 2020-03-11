@@ -1,6 +1,4 @@
 import Camera from './Camera.js';
-import Entity from './Entity.js';
-import PlayerController from './traits/PlayerController.js';
 import Timer from './Timer.js';
 import {loadEntities} from './entities.js';
 import {loadFont} from './loaders/font.js';
@@ -8,65 +6,57 @@ import {setupKeyboard} from './input.js';
 import {createLevelLoader} from './loaders/level.js';
 import {createCollisionLayer} from './layers/collision.js';
 import {createDashboardLayer} from './layers/dashboard.js';
+import {createPlayer, createPlayerEnvironment} from './player.js';
 
-function createPlayerEnvironment(playerEntity) {
-    const playerEnv = new Entity();
-    const playerControl = new PlayerController();
+async function main(canvas)
+{
+  const context = canvas.getContext('2d');
+  const audioContext = new AudioContext();
 
-    playerControl.checkpoint.set(64, 64);
-    playerControl.setPlayer(playerEntity);
-    playerEnv.addTrait(playerControl);
+  const [entityFactory, font] = await Promise.all([loadEntities(audioContext), loadFont()]);
 
-    return playerEnv;
-}
+  const loadLevel = await createLevelLoader(entityFactory);
+  const level = await loadLevel('1-1');
 
-async function main(canvas) {
-    const context = canvas.getContext('2d');
-    const audioContext = new AudioContext();
+  const camera = new Camera();
+  window.camera = camera;
 
-    const [entityFactory, font] = await Promise.all([loadEntities(audioContext), loadFont()]);
+  const mario = createPlayer(entityFactory.mario());
+  console.log(mario);
 
-    const loadLevel = await createLevelLoader(entityFactory);
-    const level = await loadLevel('1-1');
+  const playerEnv = createPlayerEnvironment(mario);
+  level.entities.add(playerEnv);
 
-    const camera = new Camera();
-    window.camera = camera;
+  level.comp.layers.push(createCollisionLayer(level));
+  level.comp.layers.push(createDashboardLayer(font, playerEnv));
 
-    const mario = entityFactory.mario();
+  const input = setupKeyboard(mario);
+  input.listenTo(window);
 
-    const playerEnv = createPlayerEnvironment(mario);
-    level.entities.add(playerEnv);
+  const gameContext = {
+    audioContext,
+    deltaTime: null
+  };
 
-    level.comp.layers.push(createCollisionLayer(level));
-    level.comp.layers.push(createDashboardLayer(font, playerEnv));
+  const timer = new Timer();
+  timer.update = deltaTime => {
+    gameContext.deltaTime = deltaTime;
+    level.update(gameContext);
 
-    const input = setupKeyboard(mario);
-    input.listenTo(window);
+    camera.pos.x = Math.max(0, mario.pos.x - 100);
+    // TODO potential fix on the blur effect when the camera moves
+    // camera.pos.x = Math.round( camera.pos.x * 1000 ) / 1000;﻿
 
-    const gameContext = {
-        audioContext,
-        deltaTime: null
-    };
+    level.comp.draw(context, camera);
+  };
 
-    const timer = new Timer();
-    timer.update = deltaTime => {
-        gameContext.deltaTime = deltaTime;
-        level.update(gameContext);
-
-        camera.pos.x = Math.max(0, mario.pos.x - 100);
-        // TODO potential fix on the blur effect when the camera moves
-        // camera.pos.x = Math.round( camera.pos.x * 1000 ) / 1000;﻿
-
-        level.comp.draw(context, camera);
-    };
-
-    timer.start();
+  timer.start();
 }
 
 const canvas = document.getElementById('screen');
 
 const start = () => {
-    window.removeEventListener('click', start);
-    main(canvas);
+  window.removeEventListener('click', start);
+  main(canvas);
 };
 window.addEventListener('click', start);

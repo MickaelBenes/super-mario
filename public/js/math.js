@@ -1,48 +1,58 @@
-export class Matrix {
+export class Matrix
+{
+  constructor()
+  {
+    this.grid = [];
+  }
 
-	constructor() {
-		this.grid = [];
-	}
+  get(x, y)
+  {
+    const col = this.grid[x];
+    if (col) {
+      return col[y];
+    }
 
-	get( x,y ) {
-		const col = this.grid[ x ];
-		if ( col ) {
-			return col[ y ];
-		}
+    return undefined;
+  }
 
-		return undefined;
-	}
+  set(x, y, value)
+  {
+    if (!this.grid[x]) {
+      this.grid[x] = [];
+    }
 
-	set( x, y, value ) {
-		if ( !this.grid[x] ) {
-			this.grid[ x ] = [];
-		}
+    this.grid[x][y] = value;
+  }
 
-		this.grid[ x ][ y ] = value;
-	}
-
-	forEach( callback ) {
-		this.grid.forEach((column, x) => {
-			column.forEach((value, y) => {
-				callback( value, x, y );
-			});
-		});
-	}
-
+  forEach(callback)
+  {
+    this.grid.forEach((column, x) => {
+      column.forEach((value, y) => {
+        callback(value, x, y);
+      });
+    });
+  }
 }
 
 window.Matrix = Matrix;
 
-export class Vec2 {
+export class Vec2
+{
+  constructor(x, y)
+  {
+    this.x = x;
+    this.y = y;
+  }
 
-	constructor( x, y ) {
-		this.x	= x;
-		this.y	= y;
+  set(x, y)
+  {
+    this.x = x;
+    this.y = y;
+  }
+
+	copy(vec2)
+	{
+		this.x = vec2.x;
+		this.y = vec2.y;
 	}
-
-	set( x, y ) {
-		this.x	= x;
-		this.y	= y;
-	}
-
 }
