@@ -32,6 +32,14 @@ export class Matrix
       });
     });
   }
+
+  delete(x, y)
+  {
+    const col = this.grid[x];
+    if (col) {
+      delete col[y];
+    }
+  }
 }
 
 window.Matrix = Matrix;
@@ -50,9 +58,9 @@ export class Vec2
     this.y = y;
   }
 
-	copy(vec2)
-	{
-		this.x = vec2.x;
-		this.y = vec2.y;
-	}
+  copy(vec2)
+  {
+    this.x = vec2.x;
+    this.y = vec2.y;
+  }
 }

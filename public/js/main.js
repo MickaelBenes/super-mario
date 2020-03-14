@@ -22,7 +22,6 @@ async function main(canvas)
   window.camera = camera;
 
   const mario = createPlayer(entityFactory.mario());
-  console.log(mario);
 
   const playerEnv = createPlayerEnvironment(mario);
   level.entities.add(playerEnv);
@@ -35,6 +34,7 @@ async function main(canvas)
 
   const gameContext = {
     audioContext,
+    entityFactory,
     deltaTime: null
   };
 
