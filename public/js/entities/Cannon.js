@@ -42,7 +42,7 @@ function createCannonFactory(audio, entityFactories)
     cannon.audio = audio;
 
     const emitter = new Emitter();
-    emitter.interval = 4;
+    emitter.interval = .2;
     emitter.emitters.push(emitBullet);
     cannon.addTrait(emitter);
 
