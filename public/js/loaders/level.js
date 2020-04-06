@@ -5,26 +5,30 @@ import {createBackgroundLayer} from '../layers/background.js';
 import {loadJSON} from '../loaders.js';
 import {loadSpriteSheet} from './sprite.js';
 import {loadMusicSheet} from './music.js';
+import Entity from '../Entity.js';
+import LevelTimer from '../traits/LevelTimer.js';
 
 function setupBackgrounds(levelSpec, level, backgroundSprites)
 {
-  levelSpec.layers.forEach(layer => {
-    const grid = createGrid(layer.tiles, levelSpec.patterns);
-    const backgroundLayer = createBackgroundLayer(level, grid, backgroundSprites);
-    level.comp.layers.push(backgroundLayer);
-    level.tileCollider.addGrid(grid);
-  });
+  levelSpec.layers.forEach(layer =>
+                           {
+                             const grid = createGrid(layer.tiles, levelSpec.patterns);
+                             const backgroundLayer = createBackgroundLayer(level, grid, backgroundSprites);
+                             level.comp.layers.push(backgroundLayer);
+                             level.tileCollider.addGrid(grid);
+                           });
 }
 
 function setupEntities(levelSpec, level, entityFactory)
 {
-  levelSpec.entities.forEach(({name, pos: [x, y]}) => {
-    const createEntity = entityFactory[name];
-    const entity = createEntity();
-    entity.pos.set(x, y);
+  levelSpec.entities.forEach(({name, pos: [x, y]}) =>
+                             {
+                               const createEntity = entityFactory[name];
+                               const entity = createEntity();
+                               entity.pos.set(x, y);
 
-    level.entities.add(entity);
-  });
+                               level.entities.add(entity);
+                             });
 
   const spriteLayer = createSpriteLayer(level.entities);
   level.comp.layers.push(spriteLayer);
@@ -32,22 +36,25 @@ function setupEntities(levelSpec, level, entityFactory)
 
 export function createLevelLoader(entityFactory)
 {
-  return function loadLevel(name) {
+  return function loadLevel(name)
+  {
     return loadJSON(`/levels/${name}.json`)
         .then(levelSpec => Promise.all([
                                          levelSpec,
                                          loadSpriteSheet(levelSpec.spriteSheet),
                                          loadMusicSheet(levelSpec.musicSheet)
                                        ]))
-        .then(([levelSpec, backgroundSprites, musicPlayer]) => {
-          const level = new Level();
-          level.musicController.setPlayer(musicPlayer);
+        .then(([levelSpec, backgroundSprites, musicPlayer]) =>
+              {
+                const level = new Level();
+                level.musicController.setPlayer(musicPlayer);
 
-          setupBackgrounds(levelSpec, level, backgroundSprites);
-          setupEntities(levelSpec, level, entityFactory);
+                setupBackgrounds(levelSpec, level, backgroundSprites);
+                setupEntities(levelSpec, level, entityFactory);
+                setupBehavior(level);
 
-          return level;
-        });
+                return level;
+              });
   }
 }
 
@@ -69,7 +76,10 @@ function* expandSpan(xStart, xLen, yStart, yLen)
 
   for (let x = xStart; x < xEnd; ++x) {
     for (let y = yStart; y < yEnd; ++y) {
-      yield {x, y};
+      yield {
+        x,
+        y
+      };
     }
   }
 }
@@ -119,4 +129,24 @@ function* expandTiles(tiles, patterns)
   }
 
   yield* walkTiles(tiles, 0, 0);
+}
+
+function createTimer()
+{
+  const timer = new Entity();
+  timer.addTrait(new LevelTimer());
+
+  return timer;
+}
+
+function setupBehavior(level) {
+  const timer = createTimer();
+  level.entities.add(timer);
+
+  level.events.listen(LevelTimer.EVENT_TIMER_OK, () => {
+    level.musicController.playTheme();
+  });
+  level.events.listen(LevelTimer.EVENT_TIMER_HURRY, () => {
+    level.musicController.playHurryTheme();
+  });
 }

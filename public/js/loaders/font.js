@@ -1,37 +1,42 @@
-import { loadImage } from '../loaders.js';
+import {loadImage} from '../loaders.js';
 import SpriteSheet from '../SpriteSheet.js'
 
-const CHARS	= ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-const SIZE	= 8;
+const CHARS = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+const SIZE = 8;
 
-class Font {
+class Font
+{
+  constructor(sprites, size)
+  {
+    this.sprites = sprites;
+    this.size = size;
+  }
 
-	constructor( sprites, size ) {
-		this.sprites	= sprites;
-		this.size		= size;
-	}
-
-	print( text, context, x , y ) {
-		[ ...text ].forEach((char, pos) => {
-			this.sprites.draw( char, context, x + pos * this.size, y );
-		});
-	}
+  print(text, context, x, y)
+  {
+    [...text].forEach((char, pos) =>
+                      {
+                        this.sprites.draw(char, context, x + pos * this.size, y);
+                      });
+  }
 
 }
 
-export function loadFont() {
-	return loadImage( './img/font.png' )
-		.then(image => {
-			const fontSprite	= new SpriteSheet( image );
-			const rowLen		= image.width;
+export function loadFont()
+{
+  return loadImage('./img/font.png')
+      .then(image =>
+            {
+              const fontSprite = new SpriteSheet(image);
+              const rowLen = image.width;
 
-			for ( let [index, char] of [...CHARS].entries() ) {
-				const x	= index * SIZE % rowLen;
-				const y	= Math.floor( index * SIZE / rowLen ) * SIZE;
+              for (let [index, char] of [...CHARS].entries()) {
+                const x = index * SIZE % rowLen;
+                const y = Math.floor(index * SIZE / rowLen) * SIZE;
 
-				fontSprite.define( char, x, y, SIZE, SIZE );
-			}
+                fontSprite.define(char, x, y, SIZE, SIZE);
+              }
 
-			return new Font( fontSprite, SIZE );
-		});
+              return new Font(fontSprite, SIZE);
+            });
 }
