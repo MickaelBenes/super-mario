@@ -7,12 +7,13 @@ import {loadSpriteSheet} from './sprite.js';
 import {loadMusicSheet} from './music.js';
 import Entity from '../Entity.js';
 import LevelTimer from '../traits/LevelTimer.js';
+import Trigger from '../traits/Trigger.js';
 
-function setupBackgrounds(levelSpec, level, backgroundSprites)
+function setupBackgrounds(levelSpec, level, backgroundSprites, patterns)
 {
   levelSpec.layers.forEach(layer =>
                            {
-                             const grid = createGrid(layer.tiles, levelSpec.patterns);
+                             const grid = createGrid(layer.tiles, patterns);
                              const backgroundLayer = createBackgroundLayer(level, grid, backgroundSprites);
                              level.comp.layers.push(backgroundLayer);
                              level.tileCollider.addGrid(grid);
@@ -42,20 +43,23 @@ export function createLevelLoader(entityFactory)
         .then(levelSpec => Promise.all([
                                          levelSpec,
                                          loadSpriteSheet(levelSpec.spriteSheet),
-                                         loadMusicSheet(levelSpec.musicSheet)
+                                         loadMusicSheet(levelSpec.musicSheet),
+                                         loadPattern(levelSpec.patternSheet)
                                        ]))
-        .then(([levelSpec, backgroundSprites, musicPlayer]) =>
+        .then(([levelSpec, backgroundSprites, musicPlayer, patterns]) =>
               {
                 const level = new Level();
+                level.name = name;
                 level.musicController.setPlayer(musicPlayer);
 
-                setupBackgrounds(levelSpec, level, backgroundSprites);
+                setupBackgrounds(levelSpec, level, backgroundSprites, patterns);
                 setupEntities(levelSpec, level, entityFactory);
+                setupTriggers(levelSpec, level);
                 setupBehavior(level);
 
                 return level;
               });
-  }
+  };
 }
 
 function createGrid(tiles, patterns)
@@ -135,18 +139,45 @@ function createTimer()
 {
   const timer = new Entity();
   timer.addTrait(new LevelTimer());
-
   return timer;
 }
 
-function setupBehavior(level) {
+function createTrigger()
+{
+  const trigger = new Entity();
+  trigger.addTrait(new Trigger());
+  return trigger;
+}
+
+function loadPattern(name)
+{
+  return loadJSON(`/sprites/patterns/${name}.json`);
+}
+
+function setupBehavior(level)
+{
   const timer = createTimer();
   level.entities.add(timer);
 
-  level.events.listen(LevelTimer.EVENT_TIMER_OK, () => {
-    level.musicController.playTheme();
-  });
-  level.events.listen(LevelTimer.EVENT_TIMER_HURRY, () => {
-    level.musicController.playHurryTheme();
-  });
+  level.events.listen(LevelTimer.EVENT_TIMER_OK, () => level.musicController.playTheme());
+  level.events.listen(LevelTimer.EVENT_TIMER_HURRY, () => level.musicController.playHurryTheme());
+}
+
+function setupTriggers(levelSpec, level)
+{
+  if (!levelSpec.triggers) {
+    return;
+  }
+
+  for (let triggerSpec of levelSpec.triggers) {
+    const entity = createTrigger();
+
+    entity.trigger.conditions.push((trigger, triggerers, gameContext, level) =>
+                                   {
+                                     level.events.emit(Level.EVENT_TRIGGER, triggerSpec, trigger, triggerers);
+                                   });
+    entity.size.set(64, 64);
+    entity.pos.set(triggerSpec.pos[0], triggerSpec.pos[1]);
+    level.entities.add(entity);
+  }
 }

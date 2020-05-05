@@ -8,8 +8,7 @@ export function loadEntities(audioContext)
 {
   const entityFactories = {};
 
-  function addAs(name)
-  {
+  function addAs(name) {
     return factory => entityFactories[name] = factory
   }
 
@@ -18,7 +17,7 @@ export function loadEntities(audioContext)
                        loadGoomba(audioContext).then(addAs('goomba')),
                        loadKoopa(audioContext).then(addAs('koopa')),
                        loadBulletBill(audioContext).then(addAs('bullet')),
-                       loadCannon(audioContext, entityFactories).then(addAs('cannon'))
+                       loadCannon(audioContext).then(addAs('cannon'))
                      ])
                 .then(() => entityFactories);
 }
