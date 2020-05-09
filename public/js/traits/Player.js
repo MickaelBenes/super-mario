@@ -1,4 +1,4 @@
-import {Trait} from '../Entity.js';
+import Trait from '../Trait.js';
 import Stomper from './Stomper.js';
 
 const COIN_LIFE_THRESHOLD = 100;
@@ -7,7 +7,7 @@ export default class Player extends Trait
 {
   constructor()
   {
-    super('player');
+    super();
 
     this.coins = 0;
     this.lives = 3;

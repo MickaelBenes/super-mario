@@ -1,8 +1,9 @@
 import {findPlayers} from '../player.js';
+import Player from '../traits/Player.js';
 
-function getPlayer(level)
+function getPlayer(entities)
 {
-  for (let entity of findPlayers(level)) {
+  for (let entity of findPlayers(entities)) {
     return entity;
   }
 }
@@ -17,13 +18,13 @@ export function createLevelLoadingLayer(font, level)
 
   return function drawWaitScreen(context)
   {
-    const entity = getPlayer(level);
+    const entity = getPlayer(level.entities);
     spriteBufferContext.clearRect(0, 0, spriteBuffer.width, spriteBuffer.height);
     entity.draw(spriteBufferContext);
     context.drawImage(spriteBuffer, FONT_SIZE * 12, FONT_SIZE * 15);
 
     font.print(`WORLD ${level.name}`, context, FONT_SIZE * 12, FONT_SIZE * 12);
-    font.print(`x ${entity.player.lives.toString().padStart(3, ' ')}`,
+    font.print(`x ${entity.getTrait(Player).lives.toString().padStart(3, ' ')}`,
                context,
                FONT_SIZE * 16,
                FONT_SIZE * 16);

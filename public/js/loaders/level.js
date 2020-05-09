@@ -142,13 +142,6 @@ function createTimer()
   return timer;
 }
 
-function createTrigger()
-{
-  const trigger = new Entity();
-  trigger.addTrait(new Trigger());
-  return trigger;
-}
-
 function loadPattern(name)
 {
   return loadJSON(`/sprites/patterns/${name}.json`);
@@ -170,12 +163,14 @@ function setupTriggers(levelSpec, level)
   }
 
   for (let triggerSpec of levelSpec.triggers) {
-    const entity = createTrigger();
+    const trigger = new Trigger();
+    trigger.conditions.push((trigger, triggerers, gameContext, level) =>
+                            {
+                              level.events.emit(Level.EVENT_TRIGGER, triggerSpec, trigger, triggerers);
+                            });
 
-    entity.trigger.conditions.push((trigger, triggerers, gameContext, level) =>
-                                   {
-                                     level.events.emit(Level.EVENT_TRIGGER, triggerSpec, trigger, triggerers);
-                                   });
+    const entity = new Entity();
+    entity.addTrait(trigger);
     entity.size.set(64, 64);
     entity.pos.set(triggerSpec.pos[0], triggerSpec.pos[1]);
     level.entities.add(entity);

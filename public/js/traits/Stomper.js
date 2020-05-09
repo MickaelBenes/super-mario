@@ -1,4 +1,5 @@
-import {Trait} from '../Entity.js';
+import Killable from './Killable.js';
+import Trait from '../Trait.js';
 
 export default class Stomper extends Trait
 {
@@ -6,7 +7,7 @@ export default class Stomper extends Trait
 
   constructor()
   {
-    super('stomper');
+    super();
 
     this.bounceSpeed = 400;
   }
@@ -19,7 +20,7 @@ export default class Stomper extends Trait
 
   collides(us, them)
   {
-    if (!them.killable || them.killable.dead) {
+    if (!them.hasTrait(Killable) || them.getTrait(Killable).dead) {
       return;
     }
 

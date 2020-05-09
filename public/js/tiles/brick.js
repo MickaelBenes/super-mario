@@ -1,4 +1,5 @@
 import {Sides} from '../Entity.js';
+import Player from '../traits/Player.js';
 
 function handleX({entity, match})
 {
@@ -20,7 +21,7 @@ function handleY({entity, match, resolver, gameContext, level})
       entity.obstruct(Sides.BOTTOM, match);
     }
   } else if (entity.vel.y < 0) {
-    if (entity.player) {
+    if (entity.getTrait(Player)) {
       const grid = resolver.matrix;
       grid.delete(match.indexX, match.indexY);
 

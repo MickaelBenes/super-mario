@@ -19,7 +19,6 @@ class Font
                         this.sprites.draw(char, context, x + pos * this.size, y);
                       });
   }
-
 }
 
 export function loadFont()

@@ -14,16 +14,17 @@ export function createPlayerEnvironment(playerEntity)
   return playerEnv;
 }
 
-export function createPlayer(entity)
+export function makePlayer(entity, name)
 {
-  entity.addTrait(new Player());
-  return entity;
+  const player = new Player();
+  player.name = name;
+  entity.addTrait(player);
 }
 
-export function* findPlayers(level)
+export function* findPlayers(entities)
 {
-  for (const entity of level.entities) {
-    if (entity.player) {
+  for (const entity of entities) {
+    if (entity.hasTrait(Player)) {
       yield entity;
     }
   }

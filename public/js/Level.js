@@ -7,7 +7,7 @@ import Scene from './Scene.js';
 
 function focusPlayer(level)
 {
-  for (let player of findPlayers(level)) {
+  for (let player of findPlayers(level.entities)) {
     level.camera.pos.x = Math.max(0, player.pos.x - 100);
   }
 }

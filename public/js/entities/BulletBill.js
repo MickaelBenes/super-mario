@@ -1,8 +1,10 @@
-import Entity, {Trait} from '../Entity.js';
+import Entity from '../Entity.js';
+import Trait from '../Trait.js';
 import Velocity from '../traits/Velocity.js';
 import Gravity from '../traits/Gravity.js';
 import Killable from '../traits/Killable.js';
 import {loadSpriteSheet} from '../loaders/sprite.js';
+import Stomper from '../traits/Stomper.js';
 
 export function loadBulletBill()
 {
@@ -21,23 +23,23 @@ class Behavior extends Trait
 
   collides(us, them)
   {
-    if (us.killable.dead) {
+    if (us.getTrait(Killable).dead) {
       return;
     }
 
-    if (them.stomper) {
+    if (them.getTrait(Stomper)) {
       if (them.vel.y > us.vel.y) {
-        us.killable.kill();
+        us.getTrait(Killable).kill();
         us.vel.set(100, -200);
       } else {
-        them.killable.kill();
+        them.getTrait(Killable).kill();
       }
     }
   }
 
   update(entity, deltaTime, level)
   {
-    if (entity.killable.dead) {
+    if (entity.getTrait(Killable).dead) {
       this.gravity.update(entity, deltaTime, level);
     }
   }
